@@ -1,8 +1,8 @@
 # Token Radar — Build the best token launch radar
 
-[![make.fun](https://make.fun/c/token-radar-01/badge)](https://make.fun/c/token-radar-01)
-[![make.fun bounty](https://make.fun/c/token-radar-01/badge.svg)](https://make.fun/c/token-radar-01)
-[![token-radar-01 on make.fun](https://make.fun/c/token-radar-01/cover)](https://make.fun/c/token-radar-01)
+[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/noniairox/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/noniairox/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 
 A program (`main.ts`, Node 22, standard library only) that reads a sealed snapshot of
 the protocol universe and writes a web dashboard ranking the protocols that record no
