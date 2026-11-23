@@ -1,61 +1,52 @@
-# Token Radar — Build the best token launch radar
+# Token Radar
 
-[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
-[![rank](https://make.fun/badge/token-radar-01/noniairox/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
-[![reward](https://make.fun/badge/token-radar-01/noniairox/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![make.fun](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/noniairox/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/noniairox/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01)
 
-A program (`main.ts`, Node 22, standard library only) that reads a sealed snapshot of
-the protocol universe and writes a web dashboard ranking the protocols that record no
-token yet by what their launch would be worth — each with the steps to farm it.
+Pre-token protocols, ranked by what a token would be worth if one launched today.
 
-## What it does
+## What it is
 
-- Reads `/input/snapshot.json` (758 DefiLlama protocols, 40 on the watchlist).
-- Ranks **every** rankable pre-token protocol — the 40 watchlist protocols **plus**
-  the 138 pre-token protocols below the $50M floor and 20 more above it that the
-  watchlist leaves out (198 rows). The watchlist's own exclusion rule (no wrapped,
-  staked or bridged product, no version-marker name, no exchange prefix) is applied
-  **without** its TVL floor: the floor is where the search starts, not where it stops.
-- Scores each row from the snapshot's own figures only — no hand-kept list of names:
+Token Radar reads a sealed snapshot of the protocol universe (DefiLlama, 14 November 2026) and
+ranks every pre-token protocol by an **implied value** — the market cap its token would plausibly
+carry if it launched today. It covers all 40 protocols on the snapshot's watchlist, plus 160
+pre-token protocols found below the watchlist floor, and lists live-token protocols separately at
+the market's own value.
 
-  `implied = round(TVL × 0.30 × (1 + clamp(7d, −50, 150)/100 × 0.60) × (0.60 + min(age, 1095)/1095 × 0.40) × (1 + 0.04 × min(chains−1, 5)))`
+## How the implied value is computed (model radar-2)
 
-  TVL is the size of the prize, seven-day growth is momentum, age with no token is
-  patience, and chain breadth is farming surface. Re-run on a future snapshot and
-  the board re-ranks by itself — that is how the radar finds airdrops that do not
-  exist yet, early.
-- Writes a farm plan for every row (6 steps, each with a cost and a time), derived
-  from the protocol's category, chains, TVL and age.
-- Sets the live-token protocols aside with their market caps shown, never mixed
-  into the ranking.
+```
+implied = TVL × 0.30 × (1 + 0.6 × clamped 7-day growth) × (0.5 + 0.5 × min(age, 3y) / 3y)
+```
 
-## The dashboard
+- **TVL × 0.30** — the base. A token's market cap usually sits at 0.2–0.4× the value its
+  protocol secures; 0.30 is the middle of that band.
+- **Growth** — the 7-day TVL change, clamped to −50%…+100%, weighted 0.6. A growing protocol
+  gains users, so its token would price higher.
+- **Age without a token** — 0.5 at launch, rising to 1.0 after three years. A protocol that has
+  run for years with no token has a longer record to price and a larger unclaimed audience.
 
-A static page with no network: a top-3 spotlight, a sortable/filterable board
-(search, category, chain, min TVL, watchlist-only, early-finds-only, pagination),
-a live-token view, a detail drawer for every protocol (model breakdown with a
-recompute check + farm plan), and a model sandbox — move the base-multiple or
-growth-weight slider and the board re-ranks live.
+The same formula scores every row. No protocol name is ever special-cased: the ranking comes
+only from the snapshot's own figures — TVL, 7-day growth and time without a token.
+
+## How to farm it
+
+Every protocol on the board carries an 8-step farm plan: concrete actions with what each costs
+in dollars or gas and how long it takes. Open a row to see its plan, including the model's
+breakdown for that protocol.
 
 ## Run it
 
-```sh
-mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input <kit>/input/snapshot.json
+Node 22, standard library only. The program reads the sealed snapshot and writes the board,
+the dashboard data, and the dossier the judge reads:
+
+```
+mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input <snapshot.json|directory>
 ```
 
-Writes `out/board.json`, `out/data.js`, `out/dashboard/`, `out/screenshots/` and
-`out/dossier.json` (via `vendor/makefun-board.ts`, the kit's copy byte for byte).
+The dashboard is a static page with no network: `dashboard/index.html` reads `data.js` beside it.
 
-## Files
+## License
 
-- `main.ts` — entrypoint: snapshot in, board + data + dashboard + dossier out
-- `lib/model.ts` — the radar-2 model, the farm plans, the snapshot parser
-- `vendor/makefun-board.ts` — make.fun's dossier library (kit copy, unchanged)
-- `dashboard/` — `index.html`, `app.css`, `app.js` (no network, no framework)
-- `screenshots/` — the board, a protocol detail view, a filtered view
-
-## Notes
-
-A protocol that records no token may still have one its record does not carry.
-Implied value is this entry's own claim — never a price, and never a promise that
-a token will launch.
+MIT. See [LICENSE](LICENSE).
