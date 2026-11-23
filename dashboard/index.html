@@ -8,7 +8,53 @@
 </head>
 <body>
 <a class="skip" href="#board">Skip to the board</a>
+<header class="top">
+  <div class="brand">
+    <div class="mark" aria-hidden="true">◉</div>
+    <div>
+      <h1>Token Radar</h1>
+      <p class="sub">Pre-token protocols, ranked by what a token would be worth if one launched today.</p>
+    </div>
+  </div>
+  <div class="meta" id="meta">Loading the sealed snapshot…</div>
+</header>
+
+<section class="model" id="model" aria-label="How the implied value is computed">
+  <h2>How the implied value is computed <span class="tag">model radar-2</span></h2>
+  <p class="formula">implied&nbsp;=&nbsp;TVL&nbsp;×&nbsp;0.30&nbsp;×&nbsp;(1&nbsp;+&nbsp;0.6&nbsp;×&nbsp;clamped&nbsp;7-day&nbsp;growth)&nbsp;×&nbsp;(0.5&nbsp;+&nbsp;0.5&nbsp;×&nbsp;min(age,&nbsp;3y)&nbsp;/&nbsp;3y)</p>
+  <ul class="terms">
+    <li><b>TVL × 0.30</b> — the base. A token's market cap usually sits at 0.2–0.4× the value its protocol secures; 0.30 is the middle of that band.</li>
+    <li><b>Growth</b> — the 7-day TVL change, clamped to −50%…+100%, weighted 0.6. A growing protocol gains users, so its token would price higher; a shrinking one lower.</li>
+    <li><b>Age without a token</b> — 0.5 at launch, rising to 1.0 after three years. A protocol that has run for years with no token has a longer record to price and a larger unclaimed audience.</li>
+  </ul>
+  <p class="note">The same formula scores every row. No protocol name is ever special-cased: the ranking comes only from the snapshot's own figures — TVL, 7-day growth and time without a token. Protocols whose token already trades are listed separately at the market's own value, never mixed into this ranking. A protocol on this board is recorded as having no token; that is what its DefiLlama record says, not proof it has none.</p>
+</section>
+
+<nav class="controls" aria-label="Board controls">
+  <label class="search">Search
+    <input id="q" type="search" placeholder="Name, slug, chain…" autocomplete="off">
+  </label>
+  <label>Category
+    <select id="category"><option value="all">All categories</option></select>
+  </label>
+  <label>Sort by
+    <select id="sort">
+      <option value="implied">Implied value</option>
+      <option value="tvl">TVL</option>
+      <option value="growth">7-day growth</option>
+      <option value="age">Age without token</option>
+      <option value="name">Name</option>
+    </select>
+  </label>
+  <div class="tabs" role="tablist" aria-label="Views">
+    <button id="tab-pre" role="tab" aria-selected="true">Pre-token board</button>
+    <button id="tab-live" role="tab" aria-selected="false">Live tokens</button>
+  </div>
+</nav>
+
 <main id="board" tabindex="-1" aria-busy="true"></main>
+<aside id="detail" aria-label="Protocol detail" hidden></aside>
+<footer class="foot" id="foot"></footer>
 <script src="../data.js"></script>
 <script src="app.js"></script>
 </body>
