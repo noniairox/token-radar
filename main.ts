@@ -1,14 +1,18 @@
-// Token Radar (radar-2): reads the sealed snapshot, writes the ranked board, the
-// dashboard's data, and the dossier the judge reads.
+// Token Radar's entry program (Node 22, standard library only), model radar-2.
 //
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input <kit>/input/snapshot.json
+// It reads the sealed snapshot from /input/snapshot.json (or --input <file|dir>), scores every
+// pre-token protocol with the model in lib/model.ts, writes the ranked board to /output/board.json,
+// writes the dashboard's data beside the page as data.js, and copies this repository's dashboard/
+// and screenshots/ to /output. Last, it writes /output/dossier.json, the summary the judge reads,
+// with the vendored make.fun library (vendor/makefun-board.ts, byte for byte the scorer's copy).
 //
-// Reads /input/snapshot.json (or --input <file|dir>), scores every rankable pre-token
-// protocol with the model in lib/model.ts, writes /output/board.json and /output/data.js,
-// copies this repository's dashboard/ and screenshots/ to /output, and writes
-// /output/dossier.json with buildDossier from vendor/makefun-board.ts (the kit's copy,
-// byte for byte). Node 22, standard library only, no network, deterministic: two runs
-// write the same bytes.
+// The dashboard is a static page, no framework and no network: dashboard/index.html, dashboard/app.css
+// and dashboard/app.js read /output/data.js, which this program writes from the same board. The page
+// recomputes every row's implied value from the snapshot figures, so the board's data and the page's
+// code are visibly the same arithmetic.
+//
+// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
+//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,7 +22,7 @@ import { buildDossier } from './vendor/makefun-board.ts';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 
-/** The scorer's own caps (reference/gate.json): the text cap shapes the bytes, the rest refuse. */
+/** The scorer's own caps: the text cap shapes the dossier's bytes, the rest refuse. */
 const TEXT_MAX_BYTES = 65_536;
 const SCREENSHOT_CAPS = { max: 4, max_bytes: 524_288 };
 const IMAGE_NAME = /^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$/;
@@ -84,5 +88,5 @@ writeFileSync(join(out, 'dossier.json'), buildDossier(out, { text_max_bytes: TEX
 
 process.stdout.write(
   `token radar: ${snapshot.protocols.length} protocols, ${snapshot.watchlist.length} on the watchlist, ${board.length} rows scored (${radar.early_size} early, ${radar.live_size} live set aside)\n` +
-    `token radar: wrote ${join(out, 'board.json')}, ${join(out, 'data.js')}, ${join(out, 'dashboard')}, ${join(out, 'screenshots')} (${shots.length} images) and ${join(out, 'dossier.json')}\n`,
+    `token radar: wrote ${join(out, 'board.json')}, ${join(out, 'data.js')}, ${join(out, 'dashboard')} (3 files), ${join(out, 'screenshots')} (${shots.length} images) and ${join(out, 'dossier.json')}\n`,
 );
